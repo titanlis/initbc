@@ -17,4 +17,8 @@ public class SerialNumber {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String sn;
+
+    public SerialNumber(String sn) {
+        this.sn = sn;
+    }
 }

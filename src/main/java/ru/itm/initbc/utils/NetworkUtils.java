@@ -29,9 +29,6 @@ public class NetworkUtils {
 
     private static String currentSerial = null;
 
-    @Value("${bk.system_password}")
-    private static String systemPassword;
-
     private final static String zeroIp = "0.0.0.0";
     private final static String zeroMac = "00:00:00:00:00:00";
 
@@ -164,18 +161,17 @@ public class NetworkUtils {
      * Если серийника нет, то возвращает "" пустую строку
      * @return currentSerial
      */
-    public static String getSystemSerialNumberLinux() {
+    public static String getSystemSerialNumberLinux(String bcPassword) {
         currentSerial = "";
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(new String[] {"/bin/bash","-c","echo " + systemPassword + " | sudo -S dmidecode -s system-serial-number"});
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));) {
+            p = Runtime.getRuntime().exec(new String[] {"/bin/bash","-c","echo " + bcPassword + " | sudo -S dmidecode -s system-serial-number"});
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 String s = null;
                 while ((s = br.readLine()) != null) {
                     p.waitFor();
                     if (!s.equals(" ")) {
                         currentSerial = s;
-                        //System.out.println("currentSerial" + currentSerial);
                         return currentSerial;
                     }else {
                         break;
