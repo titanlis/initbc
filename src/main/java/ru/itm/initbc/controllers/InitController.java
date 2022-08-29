@@ -6,11 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.ResourceAccessException;
 import ru.itm.initbc.config.SystemConfig;
 import ru.itm.initbc.entity.Interface;
+import ru.itm.initbc.entity.MessageInterface;
 import ru.itm.initbc.entity.SerialNumber;
 import ru.itm.initbc.repository.InterfaceRepository;
 import ru.itm.initbc.repository.SerialNumberRepository;
@@ -19,6 +22,7 @@ import ru.itm.initbc.utils.NetworkUtils;
 import ru.itm.initbc.utils.Request;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -81,48 +85,69 @@ public class InitController {
 
         /*Если sn получен, то пишем его в таблицу "serialnumbers"*/
         serialNumberRepository.save(new SerialNumber(serialNumber));
-        /* Запрвшиваем с сервера ip, соответствующий нашему серийнику.
+        /* Запрвшиваем с сервера ip и mac, соответствующий нашему серийнику.
          * Если в базе серийника нет, то через 5 сек повторяем запрос. Цикл бесконечный. Пока не получим ip или
          * пока не выключат сервис.*/
         do {
-            String ip = Request.get("http://" + serverUrl + ":" + serverPort + "/api/v1/init/" + serialNumber + "/getip");
-            /*Если на сервере нет нашего серийника. то ip==null, если не нулл, то запускаем обработку ip*/
-            if(ip!=null){
-                //interfaceRepository.deleteAll();
-                /*Получаем список активных сетевых интерфейсов, включая виртуальные*/
-                List<NetInterface> netInterfaceList = NetworkUtils.getActiveInterfacesIPv4();
+            try{
+                MessageInterface messageInterface = Request.get("http://" + serverUrl + ":" + serverPort + "/api/v1/init/" + serialNumber + "/getip");
 
-                /*Создаем сущность Interface для записи в h2 базу*/
-                Interface inter = new Interface();
-                inter.setId(0L);
+                /*Если на сервере нет нашего серийника. то ip==null, если не нулл, то запускаем обработку ip*/
+                if(messageInterface.getIp()!=null){
+                    //interfaceRepository.deleteAll();
+                    /*Получаем список активных сетевых интерфейсов, включая виртуальные*/
+                    List<NetInterface> netInterfaceList = NetworkUtils.getActiveInterfacesIPv4();
 
-                /*Для каждого интерфейса находим имя, mac, ip  */
-                netInterfaceList.stream().forEach(netInterface -> {
-                    inter.setName(netInterface.getName());
-                    inter.setIp(NetworkUtils.getIpFromInterfacesName(inter.getName()));
-                    inter.setMac(NetworkUtils.getMacAddress(inter.getIp()));
-                    inter.setPriority(2);
-                    inter.setActive(false);
+                    /*Создаем сущность Interface для записи в h2 базу*/
+                    Interface inter = new Interface();
+                    inter.setId(0L);
 
-                    /*Если ip совпал с тем, что был вписан в базу на сервере, значит этот интерфейс активный*/
-                    if(netInterface.getIp().equals(ip)){
-                        inter.setPriority(1);       //максимальный приоритет ему за это
-                        inter.setActive(true);      //активный
-                        inter.setIp(ip);            //ip из базы (на случай vpn, где он не совпадет с физическим)
+//                    try {
+//                        interfaceRepository.deleteAll();
+//                    }catch (DataIntegrityViolationException ex){
+//                        logger.info("No interfaces table");
+//                    }
+
+                    /*Для каждого интерфейса находим имя, mac, ip  */
+                    netInterfaceList.stream().forEach(netInterface -> {
+                        inter.setName(netInterface.getName());
+                        inter.setIp(NetworkUtils.getIpFromInterfacesName(inter.getName()));
+                        inter.setMac(NetworkUtils.getMacAddress(inter.getIp()));
+                        inter.setPriority(2);
+                        inter.setActive(false);
+                        inter.setIp_vpn(inter.getIp());
+
+                        /**Если физ.мак соответствует маку с сервера, значит через этот интерфейс идет связь*/
+                        if(messageInterface.getMac().toLowerCase().equals(inter.getMac().toLowerCase())){
+                            inter.setPriority(1);       //максимальный приоритет ему за это
+                            inter.setActive(true);      //активный
+                            /**ip в базе сервера может не совпадать с ip интерфейса, это значит, что работаем с vpn
+                             *  и ip передачи (vpn) - это ip туннеля, а не интерфейса*/
+                            inter.setIp_vpn(messageInterface.getIp());
+                        }
+                        interfaceRepository.save(inter);    //пишем в таблицу interface
+                    });
+                    SystemConfig.setIsRegisterInServer(true);   //инициализация пройдена
+                    interfaceRepository.flush();
+                }
+                else{
+                    /*Если сервер возвращает вместо ip null, спим 5 сек, затем повторяем запрос.*/
+                    logger.info("The serial number \'" + serialNumber + "\' was not found in the database.");
+                    try {
+                        TimeUnit.SECONDS.sleep(5L);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                    interfaceRepository.save(inter);    //пишем в таблицу interface
-                });
-                SystemConfig.setIsRegisterInServer(true);   //инициализация пройдена
-            }
-            else{
-                /*Если сервер возвращает вместо ip null, спим 5 сек, затем повторяем запрос.*/
-                logger.info("The serial number \'" + serialNumber + "\' was not found in the database.");
+                }
+            } catch (ResourceAccessException e) {
+                logger.error("Connect exception \'" + "http://" + serverUrl + ":" + serverPort + "/api/v1/init/" + serialNumber + "/getip" +"\'");
                 try {
-                    TimeUnit.SECONDS.sleep(5L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    TimeUnit.SECONDS.sleep(10L);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
                 }
             }
+
 
         }while (!SystemConfig.isIsRegisterInServer());
         logger.info("The on-board computer has just been connected to the server.");
