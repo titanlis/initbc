@@ -12,6 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import ru.itm.initbc.config.SystemConfig;
+import ru.itm.initbc.entity.BcService;
+
+import java.util.function.BiConsumer;
 
 /**
  * Остановка сервиса.
@@ -30,6 +34,9 @@ public class ShutdownManager {
 
     @GetMapping("/exit")
     public String stopPage(){
+
+        InitController.stopServices();
+
         /*Endpoint для отключения */
         String url = "http://localhost:"+ actuatorPort +"/actuator/shutdown";
 
