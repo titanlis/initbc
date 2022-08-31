@@ -49,9 +49,16 @@ public class ShutdownManager {
         RestTemplate restTemplate = new RestTemplate();
         // Data attached to the request.
         HttpEntity<String> requestBody = new HttpEntity<>("", headers);
-        // Send request with POST method. Пост запрос на /actuator/shutdown
-        String e = restTemplate.postForObject(url, requestBody, String.class);
-        logger.info(serviceName + " is stopped : " + e);
-        return serviceName + " is stopped : " + e;
+        try{
+            // Send request with POST method. Пост запрос на /actuator/shutdown
+            String e = restTemplate.postForObject(url, requestBody, String.class);
+            logger.info(serviceName + " is stopped : " + e);
+            return serviceName + " is stopped : " + e;
+        }catch (IllegalStateException ex){
+            logger.info("Hard stop!");
+            System.exit(0);
+        }
+
+        return serviceName + " is stopped";
     }
 }

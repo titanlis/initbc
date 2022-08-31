@@ -163,6 +163,64 @@ public class InitController {
         }while (!SystemConfig.isIsRegisterInServer());
         logger.info("The on-board computer has just been connected to the server.");
         startServices();
+        startMonitoring();
+    }
+
+    private void startMonitoring() {
+        System.out.println("startMonitoring");
+        logger.info("Total process : " + SystemConfig.getProcessInWork().size());
+
+        Runnable task = () -> {
+            while(!SystemConfig.isNeedStop()){
+                try {
+                    TimeUnit.SECONDS.sleep(20L);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+
+                SystemConfig.getProcessInWork().stream().forEach(bcService -> {
+                    if(!SystemConfig.isNeedStop()){
+                        if(bcService.isActive()){
+                            logger.info("Ping " + bcService.getJarName() + " is active");
+                        }
+                        else{
+                            logger.info("Ping " + bcService.getJarName() + " not active");
+                            SystemConfig.getProcessInWork().remove(bcService);
+
+                            int i=1;
+                            for(; i<6; i++){
+                                try {
+                                    logger.info("Restarting " + bcService.getJarName() + " ... Attempt number " + i);
+                                    if(bcService.start()){
+                                        logger.info("Service " + bcService.getJarName() + " is restart.");
+                                        SystemConfig.getProcessInWork().add(bcService);
+                                        break;
+                                    }
+                                    else{
+                                        logger.error("Service " + bcService.getJarName() + " is not restart.");
+                                    }
+                                } catch (IOException e) {
+                                    logger.error("Service " + bcService.getJarName() + " is not restart.");
+                                }
+                            }
+                            if(i==6){
+                                logger.error("Service " + bcService.getJarName() + " is not working.");
+                                SystemConfig.setNeedStop(true);
+
+                                //Если 5 раз подряд не запустился, надо что-то делать....
+                            }
+
+                        }
+                    }
+                });
+            }
+            logger.info("Init Monitor Ping close");
+            exit();
+        };
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true); //сработает даже без daemon, но так проще
+        thread.start();
     }
 
     /**
@@ -190,9 +248,13 @@ public class InitController {
 
     public static void stopServices() {
         logger.info("Total process : " + SystemConfig.getProcessInWork().size());
+        SystemConfig.setNeedStop(true);
         SystemConfig.getProcessInWork().stream().forEach(bcService -> {
-            logger.info("Stopped: " + bcService.getJarName());
-            bcService.stop();
+            if(bcService.isActive()){
+                logger.info("Stopped: " + bcService.getJarName());
+                bcService.stop();
+                SystemConfig.getProcessInWork().remove(bcService);
+            }
         });
         logger.info("Services was stop.");
     }
