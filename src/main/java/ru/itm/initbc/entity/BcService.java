@@ -66,7 +66,7 @@ public class BcService {
         boolean b=false;
         for(int i=0; i<5 && !(b=isActive()); i++){
             try {
-                TimeUnit.SECONDS.sleep(10L);
+                TimeUnit.SECONDS.sleep(30L);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }

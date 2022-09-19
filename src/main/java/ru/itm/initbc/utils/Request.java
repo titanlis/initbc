@@ -27,7 +27,7 @@ public class Request {
         /**Возвращаeтся серилизованная таблица с именем*/
         ResponseEntity<MessageInterface> response
                 = restTemplate.getForEntity( url, MessageInterface.class );
-        logger.info("Response. The update came :\t " + response.getBody());
+        //logger.info("Response. The update came :\t " + response.getBody());
         return response.getBody();
         //catch (ResourceAccessException e) {
     }
@@ -40,7 +40,7 @@ public class Request {
         HttpEntity<String> request = new HttpEntity<String>("");
         ResponseEntity<MessageStatus> response
                 = restTemplate.getForEntity( url, MessageStatus.class );
-        logger.info("Response. The update came :\t " + response.getBody());
+        //logger.info("Response. The update came :\t " + response.getBody());
         return response.getBody();
     }
 
@@ -54,7 +54,7 @@ public class Request {
         /**Возвращаeтся серилизованная таблица с именем*/
         ResponseEntity<String> response
                 = restTemplate.getForEntity( url, String.class );
-        logger.info("Response. The update came :\t " + response.getBody());
+        //logger.info("Response. The update came :\t " + response.getBody());
         return response.getBody();
         //catch (ResourceAccessException e) {
     }

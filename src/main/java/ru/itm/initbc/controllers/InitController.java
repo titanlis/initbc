@@ -17,7 +17,6 @@ import ru.itm.initbc.entity.Interface;
 import ru.itm.initbc.entity.MessageInterface;
 import ru.itm.initbc.entity.SerialNumber;
 import ru.itm.initbc.entity.builders.BcServiceBuilder;
-import ru.itm.initbc.entity.builders.BcServiceDBUpdateBuilder;
 import ru.itm.initbc.repository.InterfaceRepository;
 import ru.itm.initbc.repository.SerialNumberRepository;
 import ru.itm.initbc.utils.NetInterface;
@@ -50,6 +49,9 @@ public class InitController {
 
     private BcServiceBuilder bcServiceDBUpdateBuilder;
 
+    private boolean pingLogActiveOn = true;
+    private boolean pingNotLogOn = true;
+
     @Autowired
     public void setBcServiceDbUpdateBuilder(@Qualifier("bcServiceDBUpdateBuilder") BcServiceBuilder bcServiceDBUpdateBuilder) {
         this.bcServiceDBUpdateBuilder = bcServiceDBUpdateBuilder;
@@ -66,6 +68,7 @@ public class InitController {
         logger.info("serial.number=" + serialNumber);
         return serialNumber;
     }
+
 
     /**
      * Автозапуск после создания контекста
@@ -88,7 +91,7 @@ public class InitController {
                     serialNumber = NetworkUtils.getSystemSerialNumberWindows();
                 }
                 default -> {
-                    throw new RuntimeException("A command line argument is required : --serial.number=111111");
+                    throw new RuntimeException("A command line argument is required : --serial.number=xxxxx");
                 }
             }
         }
@@ -167,7 +170,7 @@ public class InitController {
     }
 
     private void startMonitoring() {
-        System.out.println("startMonitoring");
+        logger.info("\nStart monitoring");
         logger.info("Total process : " + SystemConfig.getProcessInWork().size());
 
         Runnable task = () -> {
@@ -181,10 +184,16 @@ public class InitController {
                 SystemConfig.getProcessInWork().stream().forEach(bcService -> {
                     if(!SystemConfig.isNeedStop()){
                         if(bcService.isActive()){
-                            logger.info("Ping " + bcService.getJarName() + " is active");
+                            if(pingLogActiveOn) logger.info("Init -> Ping " + bcService.getJarName() + " is active");
+                            pingLogActiveOn = false;
+                            pingNotLogOn = true;
                         }
                         else{
-                            logger.info("Ping " + bcService.getJarName() + " not active");
+                            if(pingNotLogOn){
+                                logger.info("Init -> Ping " + bcService.getJarName() + " not active");
+                                pingLogActiveOn = true;
+                                pingNotLogOn = false;
+                            }
                             SystemConfig.getProcessInWork().remove(bcService);
 
                             int i=1;
@@ -205,7 +214,7 @@ public class InitController {
                             }
                             if(i==6){
                                 logger.error("Service " + bcService.getJarName() + " is not working.");
-                                SystemConfig.setNeedStop(true);
+                                SystemConfig.setNeedStop(true); //выключаемся
 
                                 //Если 5 раз подряд не запустился, надо что-то делать....
                             }

@@ -16,6 +16,8 @@ public class SystemConfig {
 
     private static boolean needStop = false;    //не пора ли остановить сервис?
 
+    //private static Long equipmentId = null;     //id текущего оборудования
+
     public static boolean isNeedStop() {
         return needStop;
     }
