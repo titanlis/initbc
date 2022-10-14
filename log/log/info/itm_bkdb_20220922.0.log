@@ -1,0 +1,49 @@
+2022-09-22 00:22:54.271 INFO  [main] ru.itm.bkdb.BkdbApplication Line:55  - Starting BkdbApplication using Java 17.0.2 on itmComp with PID 59200 (/home/itm/yd/ITMiningYD/12/initbc/bkdb.jar started by itm in /home/itm/yd/ITMiningYD/12/initbc)
+2022-09-22 00:22:54.278 INFO  [main] ru.itm.bkdb.BkdbApplication Line:640 - The following 1 profile is active: "mainProfile"
+2022-09-22 00:22:55.835 INFO  [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate Line:132 - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2022-09-22 00:22:56.132 INFO  [main] org.springframework.data.repository.config.RepositoryConfigurationDelegate Line:201 - Finished Spring Data repository scanning in 284 ms. Found 58 JPA repository interfaces.
+2022-09-22 00:22:56.971 INFO  [main] org.springframework.boot.web.embedded.tomcat.TomcatWebServer Line:108 - Tomcat initialized with port(s): 2700 (http)
+2022-09-22 00:22:56.985 INFO  [main] org.apache.coyote.http11.Http11NioProtocol Line:173 - Initializing ProtocolHandler ["http-nio-2700"]
+2022-09-22 00:22:56.986 INFO  [main] org.apache.catalina.core.StandardService Line:173 - Starting service [Tomcat]
+2022-09-22 00:22:56.986 INFO  [main] org.apache.catalina.core.StandardEngine Line:173 - Starting Servlet engine: [Apache Tomcat/9.0.65]
+2022-09-22 00:22:57.077 INFO  [main] org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] Line:173 - Initializing Spring embedded WebApplicationContext
+2022-09-22 00:22:57.077 INFO  [main] org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext Line:292 - Root WebApplicationContext: initialization completed in 2668 ms
+2022-09-22 00:22:57.733 INFO  [main] org.hibernate.jpa.internal.util.LogHelper Line:31  - HHH000204: Processing PersistenceUnitInfo [name: default]
+2022-09-22 00:22:57.804 INFO  [main] org.hibernate.Version Line:44  - HHH000412: Hibernate ORM core version 5.6.10.Final
+2022-09-22 00:22:58.073 INFO  [main] org.hibernate.annotations.common.Version Line:56  - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2022-09-22 00:22:58.203 INFO  [main] com.zaxxer.hikari.HikariDataSource Line:110 - HikariPool-1 - Starting...
+2022-09-22 00:22:58.312 INFO  [main] com.zaxxer.hikari.HikariDataSource Line:123 - HikariPool-1 - Start completed.
+2022-09-22 00:22:58.348 INFO  [main] org.hibernate.dialect.Dialect Line:175 - HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+2022-09-22 00:22:59.482 INFO  [main] org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator Line:52  - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2022-09-22 00:22:59.493 INFO  [main] org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean Line:437 - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2022-09-22 00:23:02.368 INFO  [main] org.apache.coyote.http11.Http11NioProtocol Line:173 - Starting ProtocolHandler ["http-nio-2700"]
+2022-09-22 00:23:02.383 INFO  [main] org.springframework.boot.web.embedded.tomcat.TomcatWebServer Line:220 - Tomcat started on port(s): 2700 (http) with context path ''
+2022-09-22 00:23:02.495 INFO  [main] org.springframework.boot.web.embedded.tomcat.TomcatWebServer Line:108 - Tomcat initialized with port(s): 10055 (http)
+2022-09-22 00:23:02.497 INFO  [main] org.apache.coyote.http11.Http11NioProtocol Line:173 - Initializing ProtocolHandler ["http-nio-10055"]
+2022-09-22 00:23:02.497 INFO  [main] org.apache.catalina.core.StandardService Line:173 - Starting service [Tomcat]
+2022-09-22 00:23:02.498 INFO  [main] org.apache.catalina.core.StandardEngine Line:173 - Starting Servlet engine: [Apache Tomcat/9.0.65]
+2022-09-22 00:23:02.501 INFO  [main] org.apache.catalina.core.ContainerBase.[Tomcat-1].[localhost].[/] Line:173 - Initializing Spring embedded WebApplicationContext
+2022-09-22 00:23:02.501 INFO  [main] org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext Line:292 - Root WebApplicationContext: initialization completed in 113 ms
+2022-09-22 00:23:02.517 INFO  [main] org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver Line:58  - Exposing 14 endpoint(s) beneath base path '/actuator'
+2022-09-22 00:23:02.556 INFO  [main] org.apache.coyote.http11.Http11NioProtocol Line:173 - Starting ProtocolHandler ["http-nio-10055"]
+2022-09-22 00:23:02.558 INFO  [main] org.springframework.boot.web.embedded.tomcat.TomcatWebServer Line:220 - Tomcat started on port(s): 10055 (http) with context path ''
+2022-09-22 00:23:02.582 INFO  [main] ru.itm.bkdb.BkdbApplication Line:61  - Started BkdbApplication in 9.258 seconds (JVM running for 10.578)
+2022-09-22 00:23:02.649 INFO  [main] ru.itm.bkdb.controllers.UpdateController Line:96  - 
+init = true
+2022-09-22 00:23:02.650 INFO  [Thread-1] ru.itm.bkdb.controllers.UpdateController Line:100 - InitPing started
+2022-09-22 00:23:22.070 INFO  [http-nio-10055-exec-1] org.apache.catalina.core.ContainerBase.[Tomcat-1].[localhost].[/] Line:173 - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2022-09-22 00:23:22.070 INFO  [http-nio-10055-exec-1] org.springframework.web.servlet.DispatcherServlet Line:525 - Initializing Servlet 'dispatcherServlet'
+2022-09-22 00:23:22.071 INFO  [http-nio-10055-exec-1] org.springframework.web.servlet.DispatcherServlet Line:547 - Completed initialization in 1 ms
+2022-09-22 00:23:23.862 INFO  [scheduling-1] ru.itm.bkdb.controllers.UpdateController Line:222 - response.hasBody() && response.getBody() == 1 -> true
+2022-09-22 00:23:23.862 INFO  [scheduling-1] ru.itm.bkdb.controllers.UpdateController Line:179 - data is write in server
+2022-09-22 00:23:23.908 INFO  [scheduling-1] ru.itm.bkdb.controllers.UpdateController Line:187 - Table 'trans_fuel' is cleaned.
+2022-09-22 00:23:24.478 INFO  [scheduling-1] ru.itm.bkdb.controllers.UpdateController Line:306 - Response. Begin updating these tables :
+	 {}
+2022-09-22 00:23:24.478 INFO  [scheduling-1] ru.itm.bkdb.controllers.UpdateController Line:358 - All tables have been updated
+2022-09-22 00:24:01.984 INFO  [http-nio-2700-exec-1] org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] Line:173 - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2022-09-22 00:24:01.984 INFO  [http-nio-2700-exec-1] org.springframework.web.servlet.DispatcherServlet Line:525 - Initializing Servlet 'dispatcherServlet'
+2022-09-22 00:24:01.986 INFO  [http-nio-2700-exec-1] org.springframework.web.servlet.DispatcherServlet Line:547 - Completed initialization in 1 ms
+2022-09-22 00:24:02.006 INFO  [http-nio-2700-exec-1] ru.itm.bkdb.controllers.ShutdownManager Line:47  - Service is stopped : {"message":"Shutting down, bye..."}
+2022-09-22 00:24:02.542 INFO  [Thread-2] org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean Line:651 - Closing JPA EntityManagerFactory for persistence unit 'default'
+2022-09-22 00:24:02.543 INFO  [Thread-2] com.zaxxer.hikari.HikariDataSource Line:350 - HikariPool-1 - Shutdown initiated...
+2022-09-22 00:24:02.550 INFO  [Thread-2] com.zaxxer.hikari.HikariDataSource Line:352 - HikariPool-1 - Shutdown completed.
