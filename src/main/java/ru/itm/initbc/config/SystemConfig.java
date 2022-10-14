@@ -7,11 +7,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SystemConfig {
     private static OSType osType = OSType.UNKNOWN;
     private static boolean isRegisterInServer = false;  //получен ли ip с сервера
-    private static List<BcService> processInWork = new ArrayList<>();    //сервис
+    private static List<BcService> processInWork = new CopyOnWriteArrayList<>(); // new ArrayList<>();    //сервис
+
+    private static boolean needStop = false;    //не пора ли остановить сервис?
+
+    //private static Long equipmentId = null;     //id текущего оборудования
+
+    public static boolean isNeedStop() {
+        return needStop;
+    }
+
+    public static void setNeedStop(boolean needStop) {
+        SystemConfig.needStop = needStop;
+    }
+
 
     public static boolean isIsRegisterInServer() {
         return isRegisterInServer;

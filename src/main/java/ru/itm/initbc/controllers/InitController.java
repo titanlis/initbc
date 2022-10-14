@@ -17,7 +17,6 @@ import ru.itm.initbc.entity.Interface;
 import ru.itm.initbc.entity.MessageInterface;
 import ru.itm.initbc.entity.SerialNumber;
 import ru.itm.initbc.entity.builders.BcServiceBuilder;
-import ru.itm.initbc.entity.builders.BcServiceDBUpdateBuilder;
 import ru.itm.initbc.repository.InterfaceRepository;
 import ru.itm.initbc.repository.SerialNumberRepository;
 import ru.itm.initbc.utils.NetInterface;
@@ -50,6 +49,9 @@ public class InitController {
 
     private BcServiceBuilder bcServiceDBUpdateBuilder;
 
+    private boolean pingLogActiveOn = true;
+    private boolean pingNotLogOn = true;
+
     @Autowired
     public void setBcServiceDbUpdateBuilder(@Qualifier("bcServiceDBUpdateBuilder") BcServiceBuilder bcServiceDBUpdateBuilder) {
         this.bcServiceDBUpdateBuilder = bcServiceDBUpdateBuilder;
@@ -66,6 +68,7 @@ public class InitController {
         logger.info("serial.number=" + serialNumber);
         return serialNumber;
     }
+
 
     /**
      * Автозапуск после создания контекста
@@ -88,7 +91,7 @@ public class InitController {
                     serialNumber = NetworkUtils.getSystemSerialNumberWindows();
                 }
                 default -> {
-                    throw new RuntimeException("A command line argument is required : --serial.number=111111");
+                    throw new RuntimeException("A command line argument is required : --serial.number=xxxxx");
                 }
             }
         }
@@ -163,6 +166,70 @@ public class InitController {
         }while (!SystemConfig.isIsRegisterInServer());
         logger.info("The on-board computer has just been connected to the server.");
         startServices();
+        startMonitoring();
+    }
+
+    private void startMonitoring() {
+        logger.info("\nStart monitoring");
+        logger.info("Total process : " + SystemConfig.getProcessInWork().size());
+
+        Runnable task = () -> {
+            while(!SystemConfig.isNeedStop()){
+                try {
+                    TimeUnit.SECONDS.sleep(20L);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+
+                SystemConfig.getProcessInWork().stream().forEach(bcService -> {
+                    if(!SystemConfig.isNeedStop()){
+                        if(bcService.isActive()){
+                            if(pingLogActiveOn) logger.info("Init -> Ping " + bcService.getJarName() + " is active");
+                            pingLogActiveOn = false;
+                            pingNotLogOn = true;
+                        }
+                        else{
+                            if(pingNotLogOn){
+                                logger.info("Init -> Ping " + bcService.getJarName() + " not active");
+                                pingLogActiveOn = true;
+                                pingNotLogOn = false;
+                            }
+                            SystemConfig.getProcessInWork().remove(bcService);
+
+                            int i=1;
+                            for(; i<6; i++){
+                                try {
+                                    logger.info("Restarting " + bcService.getJarName() + " ... Attempt number " + i);
+                                    if(bcService.start()){
+                                        logger.info("Service " + bcService.getJarName() + " is restart.");
+                                        SystemConfig.getProcessInWork().add(bcService);
+                                        break;
+                                    }
+                                    else{
+                                        logger.error("Service " + bcService.getJarName() + " is not restart.");
+                                    }
+                                } catch (IOException e) {
+                                    logger.error("Service " + bcService.getJarName() + " is not restart.");
+                                }
+                            }
+                            if(i==6){
+                                logger.error("Service " + bcService.getJarName() + " is not working.");
+                                SystemConfig.setNeedStop(true); //выключаемся
+
+                                //Если 5 раз подряд не запустился, надо что-то делать....
+                            }
+
+                        }
+                    }
+                });
+            }
+            logger.info("Init Monitor Ping close");
+            exit();
+        };
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true); //сработает даже без daemon, но так проще
+        thread.start();
     }
 
     /**
@@ -190,9 +257,13 @@ public class InitController {
 
     public static void stopServices() {
         logger.info("Total process : " + SystemConfig.getProcessInWork().size());
+        SystemConfig.setNeedStop(true);
         SystemConfig.getProcessInWork().stream().forEach(bcService -> {
-            logger.info("Stopped: " + bcService.getJarName());
-            bcService.stop();
+            if(bcService.isActive()){
+                logger.info("Stopped: " + bcService.getJarName());
+                bcService.stop();
+                SystemConfig.getProcessInWork().remove(bcService);
+            }
         });
         logger.info("Services was stop.");
     }

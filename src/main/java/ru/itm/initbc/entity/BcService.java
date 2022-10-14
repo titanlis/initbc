@@ -46,8 +46,8 @@ public class BcService {
         } else {
             return false;
         }
-        command.add("java -DSERVER_PORT=" + port + "-DMANAGEMENT_SERVER_PORT=" + actuatorPort + " -jar " + jarName);
-        System.out.println( "java -DSERVER_PORT=" + port + "-DMANAGEMENT_SERVER_PORT=" + actuatorPort + " -jar " + jarName);
+        command.add("java -DSERVER_PORT=" + port + " -DMANAGEMENT_SERVER_PORT=" + actuatorPort + " -DINIT=true" + " -jar " + jarName);
+        System.out.println( "java -DSERVER_PORT=" + port + " -DMANAGEMENT_SERVER_PORT=" + actuatorPort + " -DINIT=true" +  " -jar " + jarName);
 
         pb = new ProcessBuilder(command);
         process = pb.start();
@@ -66,12 +66,13 @@ public class BcService {
         boolean b=false;
         for(int i=0; i<5 && !(b=isActive()); i++){
             try {
-                TimeUnit.SECONDS.sleep(10L);
+                TimeUnit.SECONDS.sleep(30L);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
         }
 
+        /**@TODO надо отправить в сервис сигнал, что он запущен из инита*/
         return b;
     }
 
